@@ -11,9 +11,9 @@ public class DecisionModel {
             You are an impartial reasoning engine for The Higher Lower Game, comparing the monthly Google search volume of two items.
             Objective: Given two items, determine whether Item B likely has a higher or lower monthly Google search volume than Item A. Item A's searches are known; Item B's searches are unknown and must be inferred using general knowledge and reasoning.
             Output rules:
-            - Output only one lowercase word: "higher" or "lower".
-            - Do not include explanations, reasoning, extra text, or punctuation.
+            - Output consists of two elements. The first element is either "higher" or "lower", indicating whether Item B has a higher or lower search volume than Item A. The second element is a brief explanation (1-2 sentences) of your reasoning. Those two elements are separated by a semicolon.
             - Base your choice on popularity, trends, and common sense when exact numbers are unknown.
+            Example output: "higher; Item B is a globally popular brand with widespread recognition, likely leading to higher search volume."
             
             """;
 
@@ -25,8 +25,6 @@ public class DecisionModel {
         this.client = client;
         this.model = model;
     }
-
-    // Optional warm-up so the model is pulled/loaded.
     public void startModel() {
         try {
             client.chat(model, SYSTEM_PROMPT, "Respond with only 'ready'.");
@@ -37,7 +35,6 @@ public class DecisionModel {
     }
 
     public boolean isHigher(Item itemA, Item itemB) {
-        // Per the rules, Model.Item B's searches are unknown to force reasoning.
         String userPrompt = """
                 Item A: %s — %s
                 Item B: %s — unknown
@@ -46,10 +43,14 @@ public class DecisionModel {
                 itemB.getSearchTerm()
         );
 
+        String response = "";
+
         try {
-            String response = client.chat(model, SYSTEM_PROMPT, userPrompt)
+            response = client.chat(model, SYSTEM_PROMPT, userPrompt)
                     .trim()
                     .toLowerCase();
+
+            System.out.println("Reason: " + response.substring(response.indexOf(';') + 1).trim());
 
             if (response.contains("higher")) return true;
             if (response.contains("lower")) return false;
@@ -58,7 +59,7 @@ public class DecisionModel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
+        throw new RuntimeException("Could not determine higher/lower from model response: " + response);
     }
 }
 
