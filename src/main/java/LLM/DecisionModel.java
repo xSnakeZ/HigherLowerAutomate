@@ -17,13 +17,12 @@ public class DecisionModel {
             
             """;
 
-    public DecisionModel() {
-        this(new OllamaClient(), "deepseek-v3.1:671b-cloud"); // change model if needed
+    public DecisionModel() {this(new OllamaClient(), Model.gpt_oss_120b_cloud); // change model if needed
     }
 
-    public DecisionModel(OllamaClient client, String model) {
+    public DecisionModel(OllamaClient client, Model model) {
         this.client = client;
-        this.model = model;
+        this.model = model.toString();
     }
     public void startModel() {
         try {

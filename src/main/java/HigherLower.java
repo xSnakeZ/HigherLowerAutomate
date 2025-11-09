@@ -28,7 +28,7 @@ public class HigherLower {
         decisionModel.startModel();
         while (!gameOver) {
             try {
-                Thread.sleep(6000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
