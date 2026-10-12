@@ -38,4 +38,12 @@ To run the application, execute the following command:
 ```cmd
 java -cp target/HigherLowerAutomate-1.0-SNAPSHOT.jar main.java.Main
 ```
+While running, the application also needs access to the specified Ollama model e.g.
+```cmd
+ollama run gpt-oss:120b-cloud
+```
+
+## Screenshots
+<img width="1590" height="1235" alt="image" src="https://github.com/user-attachments/assets/f8575965-fee0-4666-8df4-3e1a92c01e13" />
+
 
