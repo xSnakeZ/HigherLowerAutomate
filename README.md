@@ -44,6 +44,9 @@ ollama run gpt-oss:120b-cloud
 ```
 
 ## Screenshots
-<img width="1590" height="1235" alt="image" src="https://github.com/user-attachments/assets/f8575965-fee0-4666-8df4-3e1a92c01e13" />
+<img width="1601" height="1232" alt="image" src="https://github.com/user-attachments/assets/3587ffa8-14a1-4cba-a22a-21d7cfb6ec2d" />
+<img width="1597" height="1242" alt="image" src="https://github.com/user-attachments/assets/d3ef30b7-cc27-48a4-b029-900052a84c68" />
+
+
 
 
