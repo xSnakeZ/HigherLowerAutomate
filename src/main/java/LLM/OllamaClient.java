@@ -56,49 +56,6 @@ public class OllamaClient {
         return extractContent(resp.body());
     }
 
-    /**
-     * Convenience overload without system prompt.
-     */
-    public String chat(String model, String userPrompt) throws IOException, InterruptedException {
-        return chat(model, "", userPrompt);
-    }
-
-    /**
-     * Streaming chat: processes incremental JSON objects line by line.
-     */
-    public void chatStream(String model, String systemPrompt, String userPrompt, java.util.function.Consumer<String> tokenConsumer)
-            throws IOException, InterruptedException {
-
-        String json = """
-                {
-                  "model":"%s",
-                  "messages":[
-                    {"role":"system","content":%s},
-                    {"role":"user","content":%s}
-                  ],
-                  "stream":true
-                }
-                """.formatted(model, escape(systemPrompt), escape(userPrompt));
-
-        HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + "/api/chat"))
-                .timeout(Duration.ofSeconds(300)) // no timeout for long generations
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json))
-                .build();
-
-        HttpResponse<InputStream> resp = http.send(req, HttpResponse.BodyHandlers.ofInputStream());
-        if (resp.statusCode() != 200) throw new IOException("HTTP " + resp.statusCode());
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(resp.body(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                // Each line is a JSON object; extract incremental "message":{"content":"..."}
-                String part = extractContent(line);
-                if (!part.isEmpty()) tokenConsumer.accept(part);
-            }
-        }
-    }
-
     private void check(HttpResponse<?> resp) throws IOException {
         if (resp.statusCode() != 200) {
             throw new IOException("Ollama error HTTP " + resp.statusCode() + ": " + resp.body());
@@ -166,19 +123,6 @@ public class OllamaClient {
             }
         }
         return sb.toString();
-    }
-
-    // Example usage
-    public static void main(String[] args) throws Exception {
-        OllamaClient client = new OllamaClient();
-        String system = "You are a concise comparison engine.";
-        String user = "Compare Apple vs Samsung search popularity. Respond higher or lower only.";
-        String result = client.chat("llama3.1", system, user);
-        System.out.println("Result: " + result);
-
-        System.out.println("Streaming:");
-        client.chatStream("llama3.1", system, user, chunk -> System.out.print(chunk));
-        System.out.println();
     }
 }
 

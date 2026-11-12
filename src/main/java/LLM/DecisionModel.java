@@ -17,19 +17,16 @@ public class DecisionModel {
             
             """;
 
-    public DecisionModel() {this(new OllamaClient(), Model.gpt_oss_120b_cloud); // change model if needed
-    }
-
-    public DecisionModel(OllamaClient client, Model model) {
+    public DecisionModel(OllamaClient client, String model) {
         this.client = client;
-        this.model = model.toString();
+        this.model = model;
     }
     public void startModel() {
         try {
             client.chat(model, SYSTEM_PROMPT, "Respond with only 'ready'.");
             System.out.println("Model is ready.");
         } catch (Exception e) {
-            throw new RuntimeException("Failed to start model", e);
+            throw new RuntimeException("Failed to start model. Make sure a suitable Ollama model runs on localhost:11434", e);
         }
     }
 

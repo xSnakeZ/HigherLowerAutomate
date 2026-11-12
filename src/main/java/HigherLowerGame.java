@@ -1,41 +1,47 @@
 import Database.DatabaseHandler;
 import LLM.DecisionModel;
 import Entity.Item;
+import LLM.OllamaClient;
 import UI.SeleniumHelper;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public class HigherLower {
+public class HigherLowerGame {
 
     private final SeleniumHelper seleniumHelper;
     private final DecisionModel decisionModel;
     private final DatabaseHandler databaseHandler;
+    private final Boolean useDatabase;
 
-    public HigherLower() throws SQLException {
+    public HigherLowerGame(final String model, final boolean useDatabase) throws SQLException {
         this.seleniumHelper = new SeleniumHelper();
-        this.decisionModel = new DecisionModel();
+        this.decisionModel = new DecisionModel(new OllamaClient(), model);
         this.databaseHandler = new DatabaseHandler();
+        this.useDatabase = useDatabase;
     }
 
     public void startNewGame() throws SQLException {
         int score = 0;
         boolean gameOver = false;
 
-        System.out.println("Starting new round of HigherLower ...");
-        databaseHandler.createTableIfNotExists();
-        seleniumHelper.startGame();
+        if (useDatabase) {
+            System.out.println("Using Database for previous decisions");
+            System.out.println("Starting Database Initialization ...");
+            databaseHandler.createTableIfNotExists();
+        } else {
+            System.out.println("Not using Database for previous decisions");
+        }
+        System.out.println("Starting Decision Model ...");
         decisionModel.startModel();
+        System.out.println("Starting new round of HigherLower ...");
+        seleniumHelper.startGame();
         while (!gameOver) {
             try {
                 Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            try {
+                playRound(useDatabase);
                 gameOver = seleniumHelper.isGameOver();
-                playRound();
-            } catch (RuntimeException e) {
+            } catch (RuntimeException | InterruptedException e) {
                 gameOver = true;
                 e.printStackTrace();
             }
@@ -47,18 +53,23 @@ public class HigherLower {
         }
         System.out.println("Game Over! Your final score is: " + score);
         seleniumHelper.close();
-        databaseHandler.close();
+        if (useDatabase) {
+            databaseHandler.close();
+        }
     }
 
-    private void playRound() throws SQLException {
+    private void playRound(final boolean useDatabase) throws SQLException {
         boolean isHigher;
+        boolean itemExists = false;
         List<Item> items = seleniumHelper.fetchCurrentItems();
         if(items.size() < 2){
             throw new RuntimeException("Not enough items fetched to play a round.");
         }
-        databaseHandler.addIfNotExistent(items.getFirst());
-        boolean itemExists = databaseHandler.itemExists(items.get(1).getSearchTerm());
-        System.out.println("Second Item exists in DB: " + itemExists);
+        if (useDatabase) {
+            databaseHandler.addIfNotExistent(items.getFirst());
+            itemExists = databaseHandler.itemExists(items.get(1).getSearchTerm());
+            System.out.println("Second Item exists in DB: " + itemExists);
+        }
         if (itemExists) {
             System.out.println("Skip decision model");
             Item dbItem = databaseHandler.getItemBySearchTerm(items.get(1).getSearchTerm());

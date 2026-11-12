@@ -10,14 +10,16 @@ The primary goal of this project is to provide an automated solution for playing
 
 ## Key Components
 - **Game Logic**: Implements the core logic for the "Higher or Lower" game.
-- **Database Integration**: Stores previous decisions to speed up gameplay.
-- **Decision Models**: Utilizes large language models to make decisions during gameplay.
+- **Database Integration**: Stores previous decisions in a PostgreSQL Database (localhost:5432) to speed up gameplay.
+- **Decision Models**: Utilizes large language models hosted on localhost:11434 to make decisions during gameplay.
 - **UI Automation**: Automates interactions with the game's user interface using Selenium.
 
 ## Getting Started
 ### Prerequisites
 - Java 11 or higher
 - Maven 3.x
+- PostgreSQL Database running on localhost:5432
+- Ollama model running on localhost:11434
 
 ### Installation
 1. Clone the repository:
@@ -32,10 +34,15 @@ The primary goal of this project is to provide an automated solution for playing
    ```cmd
    mvn clean install
    ```
+4. Copy Dependencies to the target folder:
+   ```cmd
+   mvn dependency:copy-dependencies
+   ```
 
 ### Running the Application
 To run the application, execute the following command:
 ```cmd
-java -cp target/HigherLowerAutomate-1.0-SNAPSHOT.jar main.java.Main
+java -cp "target\HigherLowerAutomate-1.0-SNAPSHOT.jar;target\dependency\*" Main <model_name> <model_name> <useDatabase>
 ```
-
+- `<model_name>`: The name of the decision model to use (e.g., "gpt-4").
+- `<useDatabase>`: A boolean value (`true` or `false`) indicating whether to use the database for storing and retrieving previous decisions.
