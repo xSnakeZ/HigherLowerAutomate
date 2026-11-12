@@ -42,7 +42,7 @@ The primary goal of this project is to provide an automated solution for playing
 ### Running the Application
 To run the application, execute the following command:
 ```cmd
-java -cp "target\HigherLowerAutomate-1.0-SNAPSHOT.jar;target\dependency\*" Main <model_name> <model_name> <useDatabase>
+java -cp "target\HigherLowerAutomate-1.0-SNAPSHOT.jar;target\dependency\*" Main <model_name> <useDatabase>
 ```
 - `<model_name>`: The name of the decision model to use (e.g., "gpt-4").
 - `<useDatabase>`: A boolean value (`true` or `false`) indicating whether to use the database for storing and retrieving previous decisions.
